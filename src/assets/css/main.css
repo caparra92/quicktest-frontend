@@ -1,0 +1,21 @@
+@import "tailwindcss/base";
+
+.btn {
+    @apply font-bold py-2 px-4 rounded;
+  }
+  .btn-teal {
+    @apply bg-teal-500 text-white;
+  }
+  .btn-teal:hover {
+    @apply bg-teal-700;
+  }
+  .home {
+    background-image: url('/src/assets/test.svg');
+    background-size:contain;
+    background-repeat: no-repeat;
+    background-position-y: center;
+  }
+
+@import "tailwindcss/components";
+
+@import "tailwindcss/utilities";
