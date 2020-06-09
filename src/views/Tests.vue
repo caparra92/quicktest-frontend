@@ -224,8 +224,8 @@
           :level="card.level"
           :description="card.description"
         >
-          <button v-if="card.added == 1" class="btn bg-gray-100 border border-gray-200 mr-5" disabled>
-            <svg class="w-6 h-6 text-green-600 pointer-events-none" viewBox="0 0 172 172">
+          <button :class="[{ 'btn bg-gray-100 border border-gray-200 mr-5 hover:bg-gray-100 pointer-events-none text-gray-500': card.added || disabled }, 'btn btn-teal']" @click.prevent="toTest(card.id)">{{ added }}
+            <svg v-if="card.added || disabled" class="w-6 h-6 text-green-600 pointer-events-none" viewBox="0 0 172 172">
               <g
                 fill="none"
                 stroke-width="none"
@@ -245,7 +245,6 @@
               </g>
             </svg>
           </button>
-          <button v-else :class="{'btn btn-teal': '!added', 'btn bg-gray-100 border border-gray-200 mr-5': added}" @click.prevent="toTest(card.id)">{{ added }}</button>
         </QuestionCard>
       </div>
     </div>
@@ -477,8 +476,8 @@ export default {
         .then(response => {
           this.questions.push(response.data);
           //event.target.disabled = true;
-          this.added = 'Added'
-          this.disabled = true
+          this.added = '';
+          this.disabled = true;
           console.log(response);
         })
         .catch(error => {
