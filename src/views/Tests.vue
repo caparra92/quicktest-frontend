@@ -17,29 +17,14 @@
               <label class="custom-label flex">
                 <span class="select-none pr-3 mr-3">Muiltiple Choice</span>
                 <div class="bg-white shadow w-8 h-6 p-1 flex justify-center items-center mr-2">
-                  <input id="multiple" type="checkbox" class="hidden" name="check" />
-                  <svg
-                    class="hidden w-4 h-4 text-green-600 pointer-events-none"
-                    viewBox="0 0 172 172"
-                  >
-                    <g
-                      fill="none"
-                      stroke-width="none"
-                      stroke-miterlimit="10"
-                      font-family="none"
-                      font-weight="none"
-                      font-size="none"
-                      text-anchor="none"
-                      style="mix-blend-mode:normal"
-                    >
-                      <path d="M0 172V0h172v172z" />
-                      <path
-                        d="M145.433 37.933L64.5 118.8658 33.7337 88.0996l-10.134 10.1341L64.5 139.1341l91.067-91.067z"
-                        fill="currentColor"
-                        stroke-width="1"
-                      />
-                    </g>
-                  </svg>
+                  <input
+                    value="multiple"
+                    type="checkbox"
+                    class="hidden"
+                    name="check"
+                    v-model="typeQuestion"
+                  />
+                  <IconCheck class="hidden w-4 h-4 text-green-600 pointer-events-none" />
                 </div>
               </label>
             </div>
@@ -49,29 +34,14 @@
               <label class="custom-label flex">
                 <span class="select-none pr-3 mr-3">Open question</span>
                 <div class="bg-white shadow w-8 h-6 p-1 flex justify-center items-center mr-2">
-                  <input id="open" type="checkbox" class="hidden" name="check" />
-                  <svg
-                    class="hidden w-4 h-4 text-green-600 pointer-events-none"
-                    viewBox="0 0 172 172"
-                  >
-                    <g
-                      fill="none"
-                      stroke-width="none"
-                      stroke-miterlimit="10"
-                      font-family="none"
-                      font-weight="none"
-                      font-size="none"
-                      text-anchor="none"
-                      style="mix-blend-mode:normal"
-                    >
-                      <path d="M0 172V0h172v172z" />
-                      <path
-                        d="M145.433 37.933L64.5 118.8658 33.7337 88.0996l-10.134 10.1341L64.5 139.1341l91.067-91.067z"
-                        fill="currentColor"
-                        stroke-width="1"
-                      />
-                    </g>
-                  </svg>
+                  <input
+                    value="open"
+                    type="checkbox"
+                    class="hidden"
+                    name="check"
+                    v-model="typeQuestion"
+                  />
+                  <IconCheck class="hidden w-4 h-4 text-green-600 pointer-events-none" />
                 </div>
               </label>
             </div>
@@ -128,6 +98,7 @@
             method="post"
             class="w-full text-center p-3 pb-0 mb-0"
             @submit.prevent="newQuestion"
+            ref="formNewQuestion"
           >
             <h1 class="text-center py-5 font-bold text-2xl">New question</h1>
             <div class="flex w-full py-4 pr-3 items-center">
@@ -192,7 +163,7 @@
               </div>
             </div>
             <transition name="fade">
-              <MultipleChoice v-if="type == 'multiple'" @answer="retrieveAnswer($event)" />
+              <MultipleChoice v-if="type == 'multiple'" @answers="retrieveAnswer($event)" />
               <Open v-if="type == 'open'" />
             </transition>
             <div
@@ -224,27 +195,43 @@
           :level="card.level"
           :description="card.description"
         >
-          <button :class="[{ 'btn bg-gray-100 border border-gray-200 mr-5 hover:bg-gray-100 pointer-events-none text-gray-500': card.added || disabled }, 'btn btn-teal']" @click.prevent="toTest(card.id)">{{ added }}
-            <svg v-if="card.added || disabled" class="w-6 h-6 text-green-600 pointer-events-none" viewBox="0 0 172 172">
-              <g
-                fill="none"
-                stroke-width="none"
-                stroke-miterlimit="10"
-                font-family="none"
-                font-weight="none"
-                font-size="none"
-                text-anchor="none"
-                style="mix-blend-mode:normal"
+          <template v-slot:button>
+            <button
+              :class="[{ 'btn bg-gray-100 border border-gray-200 mr-5 hover:bg-gray-100 pointer-events-none text-gray-500 outline-none': card.added }, 'btn btn-teal']"
+              @click.prevent="toTest(card)"
+            >
+              {{ card.added == 1 ? '' : 'Add' }}
+              <IconCheck
+                v-if="card.added"
+                class="w-6 h-6 text-green-600 pointer-events-none outline-none"
+              />
+            </button>
+          </template>
+          <template v-slot:tags>
+            <div class="px-6 py-4 bg-white">
+              <span
+                class="inline-block bg-teal-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2"
+              >#{{card.type}}</span>
+              <span
+                class="inline-block bg-teal-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2"
+              >#{{card.level}}</span>
+              <span
+                class="inline-block bg-teal-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
+              >#{{card.course}}</span>
+            </div>
+          </template>
+          <template v-slot:answers>
+            <div class="w-full my-5" v-for="answer in card.answers" v-bind:key="answer.id">
+              <div
+                class="flex w-full p-3 border border-gray rounded-full"
+                :class="[{'bg-teal-100': answer.is_correct}, 'bg-white']"
               >
-                <path d="M0 172V0h172v172z" />
-                <path
-                  d="M145.433 37.933L64.5 118.8658 33.7337 88.0996l-10.134 10.1341L64.5 139.1341l91.067-91.067z"
-                  fill="currentColor"
-                  stroke-width="1"
-                />
-              </g>
-            </svg>
-          </button>
+                <p class="w-1/5 font-semibold">{{ answer.letter }}</p>
+                <p class="w-4/5 text-left">{{ answer.description }}</p>
+                <IconCheck class="w-5 h-5 text-green-600 mx-auto" v-if="answer.is_correct" />
+              </div>
+            </div>
+          </template>
         </QuestionCard>
       </div>
     </div>
@@ -252,9 +239,19 @@
     <!--test panel -->
 
     <div class="w-full sm:w-1/2 md:w-2/4 lg:w-2/4 xl:w-2/4 mb-4 bg-gray-100 shadow p-5 m-5 md:ml-2">
+       <Loading v-if="loading" />
+       <transition name="fade">
+        <Alert
+          v-if="error == ''"
+          class="w-full"
+          color="green"
+          title="Success"
+          body="Test created successfully"
+        />
+      </transition>
       <h1 class="text-gray-900 text-center font-bold p-5">New Test</h1>
       <div class="w-full text-center">
-        <form class="w-full flex flex-wrap md:p-2">
+        <form class="w-full flex flex-wrap md:p-2" method="post" @submit.prevent="sendTest" @load="getSignatures">
           <div class="w-full flex mb-2">
             <div class="w-1/5 pt-2">
               <label for="title" class="font-semibold">Title</label>
@@ -265,6 +262,7 @@
                 name="title"
                 id="title"
                 placeholder="Test title"
+                v-model="title"
                 class="w-full h-7 border focus:outline-none focus:border-gray-700 rounded shadow-xs pl-2"
               />
             </div>
@@ -278,6 +276,7 @@
                 type="text"
                 name="course"
                 id="course"
+                v-model="testCourse"
                 placeholder="Course name"
                 class="w-full h-7 border focus:outline-none focus:border-gray-700 rounded shadow-xs pl-2"
               />
@@ -288,13 +287,15 @@
               <label for="signature" class="font-semibold">Signature</label>
             </div>
             <div class="w-4/5">
-              <input
-                type="text"
+              <select
                 name="signature"
-                id="signature"
+                v-model="signature"
                 placeholder="Signature"
                 class="w-full h-7 border focus:outline-none focus:border-gray-700 rounded shadow-xs pl-2"
-              />
+              >
+                <option disabled selected>Select signature...</option>
+                <option v-for="signature in signatures" :key="signature.id" :value="signature.id">{{signature.name}}</option>
+              </select>
             </div>
           </div>
           <div class="w-full flex mb-2">
@@ -307,6 +308,7 @@
                 name="user"
                 id="user"
                 :value="authUser"
+                :disabled="true"
                 class="w-full h-7 border focus:outline-none focus:border-gray-700 rounded shadow-xs pl-2"
               />
             </div>
@@ -320,6 +322,7 @@
                 type="date"
                 name="test_date"
                 id="test_date"
+                v-model="date"
                 class="w-full h-7 border focus:outline-none focus:border-gray-700 rounded shadow-xs pl-2"
               />
             </div>
@@ -334,6 +337,7 @@
                 cols="20"
                 name="description"
                 id="description"
+                v-model="testDescription"
                 placeholder="Test description"
                 class="w-full h-7 border focus:outline-none focus:border-gray-700 rounded shadow-xs pl-2"
               />
@@ -352,21 +356,45 @@
                   :type="question.type"
                   :level="question.level"
                   :description="question.description"
-                />
+                >
+                  <template v-slot:button>
+                    <button class="border-none mr-2 w-12" @click.prevent="toCard(question)">
+                      <Trash />
+                    </button>
+                  </template>
+                  <template v-slot:answers>
+                    <div
+                      class="w-full my-5"
+                      v-for="answer in question.answers"
+                      v-bind:key="answer.id"
+                    >
+                      <div
+                        class="flex w-full p-3 border border-gray rounded-full"
+                        :class="[{'bg-teal-100': answer.is_correct}, 'bg-white']"
+                      >
+                        <p class="w-1/5 font-semibold">{{ answer.letter }}</p>
+                        <p class="w-4/5 text-left">{{ answer.description }}</p>
+                        <IconCheck class="w-5 h-5 text-green-600 mx-auto" v-if="answer.is_correct" />
+                      </div>
+                    </div>
+                  </template>
+                  <template v-slot:lines v-if="question.type == 'open'">
+                    <Open />
+                  </template>
+                </QuestionCard>
               </transition>
             </div>
           </div>
           <div class="w-full text-center">
-            <button type="button" class="float-right focus:outline-none border border-none">
-              Print Test
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 470.187 470.187">
-                <path
-                  d="M416.291 104.057h-43.644V10c0-5.523-4.477-10-10-10H107.54c-5.523 0-10 4.477-10 10v94.057H53.896c-21.947 0-39.802 17.855-39.802 39.802v180.006c0 5.523 4.477 10 10 10H97.54v126.322c0 5.523 4.477 10 10 10h255.107c5.523 0 10-4.477 10-10V333.865h73.446c5.523 0 10-4.477 10-10V143.859c0-21.947-17.855-39.802-39.802-39.802zM117.54 20h235.107v84.057H308.87V60.35c0-5.523-4.477-10-10-10s-10 4.477-10 10v43.707h-43.777V60.35c0-5.523-4.477-10-10-10s-10 4.477-10 10v43.707h-43.777V60.35c0-5.523-4.477-10-10-10s-10 4.477-10 10v43.707H117.54V20zm235.107 230.684H117.54v-11.458c0-10.919 8.883-19.802 19.802-19.802h195.503c10.919 0 19.802 8.883 19.802 19.802v11.458zm0 199.503H117.54V270.684h235.107v179.503zm83.446-136.322h-63.446v-74.639c0-21.947-17.855-39.802-39.802-39.802H137.342c-21.947 0-39.802 17.855-39.802 39.802v74.639H34.093V143.859c0-10.919 8.883-19.802 19.802-19.802h362.396c10.919 0 19.802 8.883 19.802 19.802v170.006z"
-                />
-                <path
-                  d="M395.497 151.836c-5.79 0-10.5 4.71-10.5 10.5s4.71 10.5 10.5 10.5 10.5-4.71 10.5-10.5c0-5.789-4.71-10.5-10.5-10.5zM355.497 151.836c-5.79 0-10.5 4.71-10.5 10.5s4.71 10.5 10.5 10.5 10.5-4.71 10.5-10.5c0-5.789-4.71-10.5-10.5-10.5zM314.963 400.311h-159.74c-5.523 0-10 4.477-10 10s4.477 10 10 10h159.74c5.523 0 10-4.477 10-10s-4.477-10-10-10zM314.963 350.435h-159.74c-5.523 0-10 4.478-10 10 0 5.523 4.477 10 10 10h159.74c5.523 0 10-4.477 10-10 0-5.522-4.477-10-10-10zM314.963 300.56h-79.87c-5.523 0-10 4.477-10 10s4.477 10 10 10h79.87c5.523 0 10-4.477 10-10s-4.477-10-10-10z"
-                />
-              </svg>
+            <button
+              type="button"
+              class="float-left focus:outline-none border border-none ml-5 pl-5 h-10"
+              @click="sendTest"
+            >
+              <Disk />
+            </button>
+            <button type="button" class="float-right focus:outline-none border border-none w-12">
+              <Printer />
             </button>
           </div>
         </form>
@@ -381,6 +409,10 @@ import QuestionCard from "@/components/QuestionCard.vue";
 import MultipleChoice from "@/components/MultipleChoice.vue";
 import Open from "@/components/Open.vue";
 import Alert from "@/components/Alert.vue";
+import IconCheck from "@/components/IconCheck.vue";
+import Printer from "@/components/Printer.vue";
+import Disk from "@/components/Disk.vue";
+import Trash from "@/components/Trash.vue";
 
 export default {
   name: "Tests",
@@ -389,12 +421,20 @@ export default {
     QuestionCard,
     MultipleChoice,
     Open,
-    Alert
+    Alert,
+    IconCheck,
+    Printer,
+    Disk,
+    Trash
+  },
+  mounted() {
+    this.getSignatures();
   },
   data() {
     return {
       authUser: localStorage.user,
       question: "",
+      typeQuestion: [],
       loading: false,
       cards: [],
       course: "",
@@ -404,8 +444,16 @@ export default {
       correctAnswer: "",
       questions: [],
       error: "",
-      added: 'Add',
-      disabled: false
+      added: "Add",
+      disabled: false,
+      options: [],
+      //TEST
+      title: "",
+      testCourse: "",
+      signatures: [],
+      signature: "",
+      date: "",
+      testDescription: ""
     };
   },
   methods: {
@@ -418,7 +466,8 @@ export default {
         this.loading = true;
         this.$store
           .dispatch("findQuestions", {
-            question: this.question
+            question: this.question,
+            type: JSON.stringify(this.typeQuestion)
           })
           .then(response => {
             if (response.data == "") {
@@ -449,7 +498,8 @@ export default {
       this.$modal.hide("modalCard");
     },
     retrieveAnswer(value) {
-      this.correctAnswer = value;
+      this.options = value;
+      console.log(this.options);
     },
     newQuestion() {
       this.$store
@@ -458,7 +508,7 @@ export default {
           description: this.description,
           type: this.type,
           level: this.level,
-          answer: this.correctAnswer
+          answers: JSON.stringify(this.options)
         })
         .then(response => {
           console.log(response);
@@ -468,29 +518,80 @@ export default {
         })
         .finally(() => this.hide());
     },
-    toTest(id) {
+    toTest(card) {
       this.$store
         .dispatch("toTest", {
-          id: id
+          id: card.id
         })
         .then(response => {
-          this.questions.push(response.data);
-          //event.target.disabled = true;
-          this.added = '';
+          this.questions.push(response.data[0]);
+          event.target.textContent = "";
+          this.added = "";
+          card.added = true;
           this.disabled = true;
           console.log(response);
         })
         .catch(error => {
           console.log(error);
         });
-      /* this.questions.push(question);
-      event.target.disabled = true;
-      event.target.textContent = 'Added'; */
+    },
+    toCard(question) {
+      this.$store
+        .dispatch("toCard", {
+          id: question.id
+        })
+        .then(response => {
+          let index = this.questions.indexOf(question);
+          this.questions.splice(index, 1);
+          for (let i = 0; i < this.cards.length; i++) {
+            if (this.cards[i].id == question.id) {
+              this.cards[i].added = false;
+            }
+          }
+          console.log(response);
+          console.log(question.id);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
     alertDimiss() {
       setTimeout(() => {
         return (this.error = "");
       }, 3000);
+    },
+    sendTest() {
+      this.loading = true;
+      this.$store
+        .dispatch("newTest", {
+          title: this.title,
+          course: this.testCourse,
+          signature: this.signature,
+          date: this.date,
+          description: this.testDescription,
+          user_id: localStorage.user_id
+        })
+        .then(response => {
+          console.log(response);
+          this.alertDimiss();
+        })
+        .catch(error => {
+          console.log(error);
+        })
+        .finally(() => (this.loading = false));
+        
+    },
+    getSignatures() {
+      this.$store
+        .dispatch("getSignature")
+        .then(response => {
+          this.signatures.push(...response.data);
+          console.log(response);
+          console.log(this.signatures);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }
   }
 };

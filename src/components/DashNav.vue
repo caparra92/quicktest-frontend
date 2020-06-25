@@ -86,9 +86,9 @@
           </li>
           <li class="mr-6 my-2 md:my-0">
             <router-link
-              to="/dashboard/tests"
+              to="/dashboard/new"
               class="block py-1 md:py-3 pl-1 align-middle text-orange-600 no-underline hover:text-gray-900 border-b-2 border-white hover:border-pink-500"
-            >My Tests</router-link>
+            >New Test</router-link>
           </li>
           <li class="mr-6 my-2 md:my-0">
             <router-link
@@ -97,10 +97,10 @@
             >My Questions</router-link>
           </li>
           <li class="mr-6 my-2 md:my-0">
-            <a
-              href="#"
+            <router-link
+              to="/dashboard/tests"
               class="block py-1 md:py-3 pl-1 align-middle text-gray-500 no-underline hover:text-gray-900 border-b-2 border-white hover:border-green-500"
-            >Answers</a>
+            >My Tests</router-link>
           </li>
           <li class="mr-6 my-2 md:my-0">
             <a

@@ -5,7 +5,7 @@
         <p class="font-semibold text-2xl text-left">{{ course }}</p>
       </div>
       <div class="w-1/4 py-5 mx-auto my-0 text-center">
-        <slot></slot>
+        <slot name="button"></slot>
       </div>
     </div>
     <div class="w-full flex p-3 border border-gray bg-white">
@@ -32,17 +32,9 @@
         <p>{{description}}</p>
       </div>
     </div>
-    <div class="px-6 py-4 bg-white">
-      <span
-        class="inline-block bg-teal-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2"
-      >#{{type}}</span>
-      <span
-        class="inline-block bg-teal-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2"
-      >#{{level}}</span>
-      <span
-        class="inline-block bg-teal-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700"
-      >#{{course}}</span>
-    </div>
+    <slot name="tags"></slot>
+    <slot name="answers"></slot>
+    <slot name="lines"></slot>
   </div>
 </template>
 

@@ -7,6 +7,7 @@ import Dashboard from '../views/Dashboard.vue'
 import Logout from '../views/Logout.vue'
 import Tests from '../views/Tests.vue'
 import Questions from '../views/Questions.vue'
+import TestsList from '../views/TestsList.vue'
 import QuestionCard from '../components/QuestionCard.vue'
 
 Vue.use(VueRouter)
@@ -45,8 +46,9 @@ Vue.use(VueRouter)
     name: 'dashboard',
     component: Dashboard,
     children: [ 
-      { path: 'tests', component: Tests }, 
-      { path: 'questions', component: Questions }
+      { path: 'new', component: Tests }, 
+      { path: 'questions', component: Questions },
+      { path: 'tests', component: TestsList }
     ],
     meta: {
         requiresAuth: true

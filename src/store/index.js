@@ -99,7 +99,7 @@ export default new Vuex.Store({
     findQuestions(context, value) {
       
       return new Promise((resolve, reject) => {
-        axios.get(`http://localhost:8000/api/questions/${value.question}`)
+        axios.get(`http://localhost:8000/api/questions/${value.question}/${value.type}`)
         .then(response => {
           console.log(response)
           resolve(response)
@@ -118,7 +118,7 @@ export default new Vuex.Store({
           type: value.type,
           level: value.level,
           user_id: localStorage.user_id,
-          answer: value.answer
+          answers: value.answers
         })
         .then(response => {
           resolve(response)
@@ -132,6 +132,53 @@ export default new Vuex.Store({
     toTest(context, value) {
       return new Promise((resolve, reject) => {
         axios.put(`http://localhost:8000/api/questions/add/${value.id}`)
+        .then(response => {
+          resolve(response);
+          console.log(response);
+        })
+        .catch(error => {
+          reject(error)
+          console.log(error);
+        })
+      })
+    },
+    toCard(context, value) {
+      return new Promise((resolve, reject) => {
+        axios.put(`http://localhost:8000/api/questions/remove/${value.id}`)
+        .then(response => {
+          resolve(response);
+          console.log(response);
+        })
+        .catch(error => {
+          reject(error)
+          console.log(error);
+        })
+      })
+    },
+    newTest(context, value) {
+      return new Promise((resolve, reject) => {
+        axios.post(`http://localhost:8000/api/tests/new`, {
+          title: value.title,
+          course: value.course,
+          signature: value.signature,
+          date: value.date,
+          description: value.description,
+          user_id: value.user_id,
+          category_id: value.signature
+        })
+        .then(response => {
+          resolve(response);
+          console.log(response);
+        })
+        .catch(error => {
+          reject(error)
+          console.log(error);
+        })
+      })
+    },
+    getSignature() {
+      return new Promise((resolve, reject) => {
+        axios.get(`http://localhost:8000/api/categories`)
         .then(response => {
           resolve(response);
           console.log(response);

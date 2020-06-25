@@ -3,7 +3,7 @@
     <transition name="fade">
       <Alert v-if="checked" color="teal" title="Option added successfully"/>
     </transition>
-    <div class="w-full" v-for="option in options" :key="option" ref="content">
+    <div class="w-full" v-for="option in options" :key="option">
       <div class="flex p-2 m-2">
         <div class="flex justify-center items-center w-1/3">
           <label class="custom-label flex">
@@ -91,7 +91,8 @@ export default {
       newOption: false,
       options: ["A", "B", "C", "D"],
       charAdd: 68,
-      answer: ''
+      answer: '',
+      answers: []
     };
   },
   methods: {
@@ -99,6 +100,7 @@ export default {
       
       const opt = this.options;
       let val = event.target.id;
+      this.answers = [];
       for (let i = 0; i < opt.length; i++) {
         if (event.target.checked) {
           this.$refs[opt[i]][0].checked = false;
@@ -109,13 +111,15 @@ export default {
           this.checked = true;
           this.alertDimiss();
           //sending value of selected option to parent component
-          this.answer = this.$refs['option'+val][0].value;
-          this.$emit('answer', this.answer)
+
+          //this.answer = this.$refs['option'+val][0].value;
+          this.answers.push({letter: opt[i], option: this.$refs['option'+opt[i]][0].value, is_correct: this.$refs[opt[i]][0].checked});
         } else {
           this.$refs['option'+val][0].className = 'rounded border border-gray-500 h-8 w-full pl-2';
         }
       }
-
+      this.$emit('answers', this.answers);
+    
       //let check = event.target
       /*  const content = this.$refs.content.childNodes;
       //console.log(content);
