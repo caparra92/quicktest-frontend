@@ -164,7 +164,8 @@ export default new Vuex.Store({
           date: value.date,
           description: value.description,
           user_id: value.user_id,
-          category_id: value.signature
+          category_id: value.signature,
+          questions: value.questions
         })
         .then(response => {
           resolve(response);

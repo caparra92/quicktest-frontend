@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="w-screen h-screen absolute m-auto inset-0 z-0">
       <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       style="shape-rendering: auto"
-      class="w-24 h-24 m-auto block"
+      class="w-24 h-24 absolute inset-0 m-auto z-50"
       viewBox="0 0 100 100"
       preserveAspectRatio="xMidYMid"
     >
@@ -30,7 +30,7 @@
           begin="-0.2s"
         />
       </rect>
-      <rect x="42.5" y="27.3692" width="15" height="45.2617" class="fill-current text-teal-400">
+      <rect x="42.5" y="27.3692" width="15" height="46.2617" class="fill-current text-teal-400">
         <animate
           attributeName="y"
           repeatCount="indefinite"
@@ -52,7 +52,7 @@
           begin="-0.1s"
         />
       </rect>
-      <rect x="67.5" y="25.1114" width="15" height="49.7772" class="fill-current text-teal-300">
+      <rect x="67.5" y="25.1114" width="15" height="52.7772" class="fill-current text-teal-300">
         <animate
           attributeName="y"
           repeatCount="indefinite"

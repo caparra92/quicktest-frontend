@@ -1,6 +1,6 @@
 <template>
   <svg
-    class="w-10"
+    class="w-10 bg-gray-100"
     viewBox="0 0 100 100"
     xmlns="http://www.w3.org/2000/svg"
     style="background-size:initial;background-repeat-y:initial;background-repeat-x:initial;background-position-y:initial;background-position-x:initial;background-origin:initial;background-image:initial;background-color:#fff;background-clip:initial;background-attachment:initial;animation-play-state:paused"

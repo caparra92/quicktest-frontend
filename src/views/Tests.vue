@@ -1,9 +1,8 @@
 <template>
-  <div class="flex flex-wrap w-full justify-center">
+  <div class="flex flex-wrap w-full justify-center" :class="{'opacity-50' : loading}">
+    <Loading v-if="loading"/>
     <!--Question find panel -->
-
     <div class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/4 mb-4 bg-gray-100 shadow m-5 p-5 md:mr-2">
-      <Loading v-if="loading" />
       <h1 class="text-gray-900 text-center p-5 font-bold">Questions</h1>
       <div class="w-full text-center items-center mx-auto">
         <form
@@ -103,7 +102,7 @@
             <h1 class="text-center py-5 font-bold text-2xl">New question</h1>
             <div class="flex w-full py-4 pr-3 items-center">
               <div class="w-1/3">
-                <label for="Qtitle" class="font-semibold">Course</label>
+                <label for="Qthis." class="font-semibold">Course</label>
               </div>
               <div class="w-2/3">
                 <input
@@ -239,18 +238,18 @@
     <!--test panel -->
 
     <div class="w-full sm:w-1/2 md:w-2/4 lg:w-2/4 xl:w-2/4 mb-4 bg-gray-100 shadow p-5 m-5 md:ml-2">
-       <Loading v-if="loading" />
        <transition name="fade">
         <Alert
-          v-if="error == ''"
+          v-if="testAdded"
           class="w-full"
-          color="green"
+          color="teal"
           title="Success"
           body="Test created successfully"
         />
       </transition>
       <h1 class="text-gray-900 text-center font-bold p-5">New Test</h1>
       <div class="w-full text-center">
+        <p class="bg-red-100 text-red-500 m-2" v-for="error in errors" :key="error.id">{{ error[0] }}</p>
         <form class="w-full flex flex-wrap md:p-2" method="post" @submit.prevent="sendTest" @load="getSignatures">
           <div class="w-full flex mb-2">
             <div class="w-1/5 pt-2">
@@ -263,8 +262,10 @@
                 id="title"
                 placeholder="Test title"
                 v-model="title"
+                :class="{'border border-red-500': errors.title !== undefined}"
                 class="w-full h-7 border focus:outline-none focus:border-gray-700 rounded shadow-xs pl-2"
               />
+              <span v-if="errors.length > 0" class="text-red-500 text-left w-full text-xs">This field is required</span>
             </div>
           </div>
           <div class="w-full flex mb-2">
@@ -277,9 +278,11 @@
                 name="course"
                 id="course"
                 v-model="testCourse"
+                :class="{'border border-red-500': errors.course !== undefined}"
                 placeholder="Course name"
                 class="w-full h-7 border focus:outline-none focus:border-gray-700 rounded shadow-xs pl-2"
               />
+              <span v-if="errors.length > 0" class="text-red-500 text-left w-full text-xs">This field is required</span>
             </div>
           </div>
           <div class="w-full flex mb-2">
@@ -290,12 +293,14 @@
               <select
                 name="signature"
                 v-model="signature"
+                :class="{'border border-red-500': errors.signature !== undefined}"
                 placeholder="Signature"
                 class="w-full h-7 border focus:outline-none focus:border-gray-700 rounded shadow-xs pl-2"
               >
                 <option disabled selected>Select signature...</option>
                 <option v-for="signature in signatures" :key="signature.id" :value="signature.id">{{signature.name}}</option>
               </select>
+              <span v-if="errors.length > 0" class="text-red-500 text-left w-full text-xs">This field is required</span>
             </div>
           </div>
           <div class="w-full flex mb-2">
@@ -323,8 +328,10 @@
                 name="test_date"
                 id="test_date"
                 v-model="date"
+                :class="{'border border-red-500': errors.date !== undefined}"
                 class="w-full h-7 border focus:outline-none focus:border-gray-700 rounded shadow-xs pl-2"
               />
+              <span v-if="errors.length > 0" class="text-red-500 text-left w-full text-xs">This field is required</span>
             </div>
           </div>
           <div class="w-full flex mb-2">
@@ -339,8 +346,10 @@
                 id="description"
                 v-model="testDescription"
                 placeholder="Test description"
+                :class="{'border border-red-500': errors.description !== undefined}"
                 class="w-full h-7 border focus:outline-none focus:border-gray-700 rounded shadow-xs pl-2"
               />
+              <span v-if="errors.length > 0" class="text-red-500 text-left w-full text-xs">This field is required</span>
             </div>
           </div>
           <hr class="border-2 mx-auto my-5 border-dotted border-teal-600 text-xl w-2/3" />
@@ -389,12 +398,12 @@
             <button
               type="button"
               class="float-left focus:outline-none border border-none ml-5 pl-5 h-10"
-              @click="sendTest"
+              @click="sendTest(questions)"
             >
               <Disk />
             </button>
             <button type="button" class="float-right focus:outline-none border border-none w-12">
-              <Printer />
+              <Printer/>
             </button>
           </div>
         </form>
@@ -453,7 +462,9 @@ export default {
       signatures: [],
       signature: "",
       date: "",
-      testDescription: ""
+      testDescription: "",
+      testAdded: false,
+      errors: []
     };
   },
   methods: {
@@ -461,7 +472,7 @@ export default {
       this.cards = [];
       if (this.question == "") {
         this.error = "Search input cannot be empty";
-        this.alertDimiss();
+        this.alertDimiss(this.error);
       } else {
         this.loading = true;
         this.$store
@@ -471,9 +482,11 @@ export default {
           })
           .then(response => {
             if (response.data == "") {
+              this.question = "";
               this.error = "No results found";
-              this.alertDimiss();
+              this.alertDimiss(this.error);
             } else {
+              this.question = "";
               this.cards.push(...response.data);
             }
           })
@@ -555,13 +568,21 @@ export default {
           console.log(error);
         });
     },
-    alertDimiss() {
-      setTimeout(() => {
-        return (this.error = "");
+    alertDimiss(value) {
+      
+      if(typeof(value) === 'boolean') {
+        setTimeout(() => {
+          return this.testAdded = false;
       }, 3000);
+        } else {
+        setTimeout(() => {
+          return this.error = "";
+      }, 3000);
+        }
     },
-    sendTest() {
+    sendTest(questions) {
       this.loading = true;
+      /* if (!this.title && !this.testCourse && !this.signature && !this.date && !this.description) */ 
       this.$store
         .dispatch("newTest", {
           title: this.title,
@@ -569,14 +590,26 @@ export default {
           signature: this.signature,
           date: this.date,
           description: this.testDescription,
-          user_id: localStorage.user_id
+          user_id: localStorage.user_id,
+          questions: JSON.stringify(questions)
         })
         .then(response => {
+          this.testAdded = true;
+          this.errors = [];
+          this.title =  "";
+          this.testCourse = "";
+          this.signature =  "";
+          this.date =  "";
+          this.testDescription =  "";
+          this.questions =  [];
+          this.disabled = true;
+          this.alertDimiss(this.testAdded);
           console.log(response);
-          this.alertDimiss();
         })
         .catch(error => {
-          console.log(error);
+          console.log(error.response.data.errors)
+          this.errors = error.response.data.errors;
+          console.log(this.errors.date)
         })
         .finally(() => (this.loading = false));
         
