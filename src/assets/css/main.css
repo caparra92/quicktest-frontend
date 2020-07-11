@@ -9,6 +9,18 @@
   .btn-teal:hover {
     @apply bg-teal-700;
   }
+  .btn-red {
+    @apply bg-red-500 text-white;
+  }
+  .btn-red:hover {
+    @apply bg-red-700;
+  }
+  .btn-green {
+    @apply bg-green-500 text-white;
+  }
+  .btn-green:hover {
+    @apply bg-green-700;
+  }
   .home {
     background-image: url('/src/assets/test.svg');
     background-size:contain;
