@@ -46,18 +46,18 @@ export default new Vuex.Store({
       })
     },
     destroyToken(context) {
-      
-      if (context.getters.loggedIn){
-        
+
+      if (context.getters.loggedIn) {
+
         return new Promise((resolve, reject) => {
           axios.post('http://localhost:8000/api/auth/logout', '', {
-              headers: { Authorization: "Bearer " + context.state.token }
-            })
+            headers: { Authorization: "Bearer " + context.state.token }
+          })
             .then(response => {
               //console.log(response)
               localStorage.removeItem('access_token')
               context.commit('destroyToken')
-  
+
               resolve(response)
             })
             .catch(error => {
@@ -96,21 +96,21 @@ export default new Vuex.Store({
           })
       })
     },
-    findQuestions(context, value) {
-      
+    findQuestions(_, value) {
+
       return new Promise((resolve, reject) => {
         axios.get(`http://localhost:8000/api/questions/${value.question}/${value.type}`)
-        .then(response => {
-          console.log(response)
-          resolve(response)
-        })
-        .catch(error => {
-          console.log(error)
-          reject(error)
-        })
+          .then(response => {
+            console.log(response)
+            resolve(response)
+          })
+          .catch(error => {
+            console.log(error)
+            reject(error)
+          })
       })
     },
-    addQuestion(context, value) {
+    addQuestion(_, value) {
       return new Promise((resolve, reject) => {
         axios.post(`http://localhost:8000/api/questions/new`, {
           course: value.course,
@@ -120,42 +120,42 @@ export default new Vuex.Store({
           user_id: localStorage.user_id,
           answers: value.answers
         })
-        .then(response => {
-          resolve(response)
-        })
-        .catch(error => {
-          console.log(error)
-          reject(error)
-        })
+          .then(response => {
+            resolve(response)
+          })
+          .catch(error => {
+            console.log(error)
+            reject(error)
+          })
       })
     },
-    toTest(context, value) {
+    toTest(_, value) {
       return new Promise((resolve, reject) => {
         axios.put(`http://localhost:8000/api/questions/add/${value.id}`)
-        .then(response => {
-          resolve(response);
-          console.log(response);
-        })
-        .catch(error => {
-          reject(error)
-          console.log(error);
-        })
+          .then(response => {
+            resolve(response);
+            console.log(response);
+          })
+          .catch(error => {
+            reject(error)
+            console.log(error);
+          })
       })
     },
-    toCard(context, value) {
+    toCard(_, value) {
       return new Promise((resolve, reject) => {
         axios.put(`http://localhost:8000/api/questions/remove/${value.id}`)
-        .then(response => {
-          resolve(response);
-          console.log(response);
-        })
-        .catch(error => {
-          reject(error)
-          console.log(error);
-        })
+          .then(response => {
+            resolve(response);
+            console.log(response);
+          })
+          .catch(error => {
+            reject(error)
+            console.log(error);
+          })
       })
     },
-    newTest(context, value) {
+    newTest(_, value) {
       return new Promise((resolve, reject) => {
         axios.post(`http://localhost:8000/api/tests/new`, {
           title: value.title,
@@ -167,40 +167,82 @@ export default new Vuex.Store({
           category_id: value.signature,
           questions: value.questions
         })
-        .then(response => {
-          resolve(response);
-          console.log(response);
-        })
-        .catch(error => {
-          reject(error)
-          console.log(error);
-        })
+          .then(response => {
+            resolve(response);
+            console.log(response);
+          })
+          .catch(error => {
+            reject(error)
+            console.log(error);
+          })
+      })
+    },
+    printTest(_, value) {
+      const URI = `http://localhost:8000/api/tests/print/${value}`;
+      return new Promise((resolve, reject) => {
+        axios.get(URI, {responseType: 'blob'})
+          .then(response => {
+            console.log(response)
+            resolve(response);
+            /* var binary = atob(response.data.replace(/\s/g, ''));
+            var len = binary.length;
+            var buffer = new ArrayBuffer(len);
+            var view = new Uint8Array(buffer);
+            for (var i = 0; i < len; i++) {
+              view[i] = binary.charCodeAt(i);
+            } */
+
+            // create the blob object with content-type "application/pdf"               
+            /* var blob = new Blob([view], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob); */
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'file.pdf');
+            document.body.appendChild(link);
+            link.click();
+          })
+          .catch(error => {
+            reject(error)
+            console.log(error);
+          })
       })
     },
     getSignature() {
       return new Promise((resolve, reject) => {
         axios.get(`http://localhost:8000/api/categories`)
-        .then(response => {
-          resolve(response);
-          console.log(response);
-        })
-        .catch(error => {
-          reject(error)
-          console.log(error);
-        })
+          .then(response => {
+            resolve(response);
+            console.log(response);
+          })
+          .catch(error => {
+            reject(error)
+            console.log(error);
+          })
       })
     },
     getQuestions() {
       return new Promise((resolve, reject) => {
         axios.get(`http://localhost:8000/api/questions`)
-        .then(response => {
-          resolve(response)
-          console.log(response)
-        })
-        .catch(error => {
-          reject(error)
-          console.log(error)
-        })
+          .then(response => {
+            resolve(response)
+            console.log(response)
+          })
+          .catch(error => {
+            reject(error)
+            console.log(error)
+          })
+      })
+    },
+    deleteQuestion(context, value) {
+      return new Promise((resolve, reject) => {
+        axios.delete(`http://localhost:8000/api/questions/${value.id}`)
+          .then(response => {
+            resolve(response)
+          })
+          .catch(error => {
+            reject(error)
+          })
       })
     }
   },

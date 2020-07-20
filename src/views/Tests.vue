@@ -397,17 +397,112 @@
           <div class="w-full text-center">
             <button
               type="button"
-              class="float-left focus:outline-none border border-none ml-5 pl-5 h-10"
+              class="float-left focus:outline-none border border-none ml-5 pb-2 w-12"
               @click="sendTest(questions)"
             >
-              <Disk />
+              <a-icon type="save" :style="{fontSize: '2em', color: '#207d5b'}" title="Save test" />
             </button>
-            <button type="button" class="float-right focus:outline-none border border-none w-12">
-              <Printer/>
+            <button 
+              type="button" 
+              class="float-right focus:outline-none border border-none w-12"
+              @click="showPrintOptions()">
+              <a-icon type="printer" :style="{fontSize: '2em', color: '#2ab884'}" title="Print" />
             </button>
           </div>
         </form>
       </div>
+      <modal 
+        name="modalOptions" 
+        height="auto" 
+        :adaptive="true" 
+        :scrollable="true"
+        @closed="beforeClose"
+      >
+        <div class="w-full text-center bg-teal-100 h-auto sm:w-full">
+          <form
+            method="post"
+            class="w-full text-center p-3 pb-0 mb-0"
+            @submit.prevent="printTest"
+            ref="formNewQuestion"
+          >
+            <h1 class="text-center py-5 font-bold text-2xl">Print Options</h1>
+            <div class="flex w-full py-4 pr-3 items-center">
+              <div class="w-1/3">
+                <label for="answersSheet" class="font-semibold">Answers sheet</label>
+              </div>
+              <div class="w-2/3">
+                <select
+                  class="w-full h-10 rounded border border-gray-700 shadow-xs pl-2"
+                  name="type"
+                  v-model="answersSheet"
+                >
+                  <option disabled selected value>Select type...</option>
+                  <option value="firstSheet">In the first Sheet</option>
+                  <option value="lastSheet">In the last Sheet</option>
+                  <option value="individualSheet">In a individual Sheet</option>
+                </select>
+              </div>
+            </div>
+            <div class="flex w-full py-4 pr-3 items-center">
+              <div class="w-1/3">
+                <label for="randomize" class="font-semibold">Randomize</label>
+              </div>
+              <div class="w-2/3">
+                <select
+                  class="w-full h-10 rounded border border-gray-700 shadow-xs pl-2"
+                  name="randomize"
+                  v-model="randomize"
+                >
+                  <option disabled selected value>Select type...</option>
+                  <option value="questionsAndAnswers">Questions and answers</option>
+                  <option value="onlyQuestions">Only questions order</option>
+                  <option value="onlyAnswers">Only answers</option>
+                  <option value="onlyAnswers">No randomize</option>
+                </select>
+              </div>
+            </div>
+            <div class="flex w-full py-4 pr-3 items-center">
+              <div class="w-1/3">
+                <label for="level" class="font-semibold">Review Password</label>
+              </div>
+              <div class="w-2/3">
+                <input
+                  class="w-full pl-2 h-10 rounded border border-gray-700 shadow-xs pl-2"
+                  type="password"
+                  name="reviewPassword"
+                  id="reviewPassword"
+                  v-model="reviewPassword"
+                  placeholder="Password for review"
+                />
+              </div>
+            </div>
+            <div class="flex w-full py-4 pr-3 items-center">
+              <div class="w-1/3">
+                <label for="passwordConfirm" class="font-semibold">Password confirm</label>
+              </div>
+              <div class="w-2/3">
+                <input
+                  class="w-full pl-2 h-10 rounded border border-gray-700 shadow-xs pl-2"
+                  type="password"
+                  name="passwordConfirm"
+                  id="passwordConfirm"
+                  v-model="passwordConfirm"
+                  placeholder="Confirm password"
+                />
+              </div>
+            </div>
+            <div
+              class="w-full bg-teal-400 my-5 border border-teal-400 rounded hover:bg-teal-500 pb-0 mb-2"
+            >
+              <button
+                type="button"
+                class="w-full h-16 text-white font-semibold focus:outline-none"
+                @click="printTest(currentSaved)"
+              >Download PDF</button>
+            </div>
+          </form>
+        </div>
+      </modal>
     </div>
   </div>
 </template>
@@ -419,8 +514,6 @@ import MultipleChoice from "@/components/MultipleChoice.vue";
 import Open from "@/components/Open.vue";
 import Alert from "@/components/Alert.vue";
 import IconCheck from "@/components/IconCheck.vue";
-import Printer from "@/components/Printer.vue";
-import Disk from "@/components/Disk.vue";
 import Trash from "@/components/Trash.vue";
 
 export default {
@@ -432,8 +525,6 @@ export default {
     Open,
     Alert,
     IconCheck,
-    Printer,
-    Disk,
     Trash
   },
   mounted() {
@@ -464,7 +555,13 @@ export default {
       date: "",
       testDescription: "",
       testAdded: false,
-      errors: []
+      errors: [],
+      //Print Test
+      answersSheet: '',
+      randomize: '',
+      reviewPassword: '',
+      passwordConfirm: '',
+      currentSaved: ''
     };
   },
   methods: {
@@ -509,6 +606,24 @@ export default {
     },
     hide() {
       this.$modal.hide("modalCard");
+    },
+    showPrintOptions() {
+      this.$modal.show(
+        "modalOptions",
+        {
+          height: "auto"
+        },
+        {
+          draggable: true
+        }
+      );
+    },
+    hidePrintOptions() {
+      this.$modal.hide("modalOptions");
+    },
+    beforeClose () {
+      this.testAdded = true;
+      this.alertDimiss(this.testAdded);
     },
     retrieveAnswer(value) {
       this.options = value;
@@ -594,22 +709,16 @@ export default {
           questions: JSON.stringify(questions)
         })
         .then(response => {
-          this.testAdded = true;
+          this.currentSaved = response.data.test.id;
+          this.showPrintOptions();
           this.errors = [];
-          this.title =  "";
-          this.testCourse = "";
-          this.signature =  "";
-          this.date =  "";
-          this.testDescription =  "";
-          this.questions =  [];
+          this.resetForm();
           this.disabled = true;
-          this.alertDimiss(this.testAdded);
-          console.log(response);
         })
         .catch(error => {
-          console.log(error.response.data.errors)
+          console.log(error)
           this.errors = error.response.data.errors;
-          console.log(this.errors.date)
+          //console.log(this.errors.date)
         })
         .finally(() => (this.loading = false));
         
@@ -625,6 +734,28 @@ export default {
         .catch(error => {
           console.log(error);
         });
+    },
+    printTest(id) {
+      console.log(id);
+      this.hidePrintOptions();
+      /* if (!this.title && !this.testCourse && !this.signature && !this.date && !this.description) */ 
+      this.$store
+        .dispatch("printTest", id)
+        .then(response => {
+          this.resetForm();
+          console.log(response);
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+    resetForm() {
+      this.title =  "";
+      this.testCourse = "";
+      this.signature =  "";
+      this.date =  "";
+      this.testDescription =  "";
+      this.questions =  [];
     }
   }
 };

@@ -4,9 +4,15 @@ import router from './router'
 import store from './store'
 import VModal from 'vue-js-modal'
 import '@/assets/css/main.css'
+import { Table, Divider, Icon, Popconfirm } from 'ant-design-vue';
+import 'ant-design-vue/dist/antd.css';
 
 Vue.config.productionTip = false
 Vue.use(VModal)
+Vue.use(Table)
+Vue.use(Divider)
+Vue.use(Icon)
+Vue.use(Popconfirm)
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
