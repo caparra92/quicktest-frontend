@@ -178,6 +178,7 @@ export default new Vuex.Store({
       })
     },
     printTest(_, value) {
+      console.log(value);
       const URI = `http://localhost:8000/api/tests/print/${value}`;
       return new Promise((resolve, reject) => {
         axios.get(URI, {responseType: 'blob'})

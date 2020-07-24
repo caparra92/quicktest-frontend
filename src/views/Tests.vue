@@ -163,7 +163,7 @@
             </div>
             <transition name="fade">
               <MultipleChoice v-if="type == 'multiple'" @answers="retrieveAnswer($event)" />
-              <Open v-if="type == 'open'" />
+              <Open v-if="type == 'open'" @lines="linesForAnswer($event)"/>
             </transition>
             <div
               class="w-full bg-teal-400 my-5 border border-teal-400 rounded hover:bg-teal-500 pb-0 mb-2"
@@ -356,7 +356,8 @@
           <h1 class="block w-full text-gray-900 text-center font-bold p-5">Questions</h1>
           <div class="w-full text-center">
             <!-- get questions here -->
-
+            <a-icon v-if="errors.question && questions.length === 0" type="info-circle-o" :style="{fontSize: '1em', color: '#f54842', padding: '2px'}"/>
+            <span v-if="questions.length == 0" class="text-red-500 text-left w-full text-xs">{{errors.question}}</span>
             <div class="w-full my-5 p-3" v-for="question in questions" :key="question.id">
               <transition name="fade">
                 <QuestionCard
@@ -388,25 +389,18 @@
                     </div>
                   </template>
                   <template v-slot:lines v-if="question.type == 'open'">
-                    <Open />
+                    <Open @lines="linesForAnswer($event)"/>
                   </template>
                 </QuestionCard>
               </transition>
             </div>
           </div>
           <div class="w-full text-center">
-            <button
-              type="button"
-              class="float-left focus:outline-none border border-none ml-5 pb-2 w-12"
-              @click="sendTest(questions)"
-            >
-              <a-icon type="save" :style="{fontSize: '2em', color: '#207d5b'}" title="Save test" />
-            </button>
             <button 
               type="button" 
               class="float-right focus:outline-none border border-none w-12"
-              @click="showPrintOptions()">
-              <a-icon type="printer" :style="{fontSize: '2em', color: '#2ab884'}" title="Print" />
+              @click="sendTest(questions)">
+              <a-icon type="printer" :style="{fontSize: '2em', color: '#2ab884'}" title="Save and print" />
             </button>
           </div>
         </form>
@@ -547,6 +541,7 @@ export default {
       added: "Add",
       disabled: false,
       options: [],
+      lines: 10,
       //TEST
       title: "",
       testCourse: "",
@@ -629,6 +624,10 @@ export default {
       this.options = value;
       console.log(this.options);
     },
+    linesForAnswer(value) {
+      this.lines = value;
+      console.log(this.lines);
+    },
     newQuestion() {
       this.$store
         .dispatch("addQuestion", {
@@ -696,9 +695,11 @@ export default {
         }
     },
     sendTest(questions) {
-      this.loading = true;
-      /* if (!this.title && !this.testCourse && !this.signature && !this.date && !this.description) */ 
-      this.$store
+      if (this.questions.length === 0) {
+        this.errors.question = 'You should add one question at least';
+      } else {
+        this.loading = true;
+        this.$store
         .dispatch("newTest", {
           title: this.title,
           course: this.testCourse,
@@ -721,7 +722,7 @@ export default {
           //console.log(this.errors.date)
         })
         .finally(() => (this.loading = false));
-        
+      }   
     },
     getSignatures() {
       this.$store
