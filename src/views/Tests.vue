@@ -389,7 +389,7 @@
                     </div>
                   </template>
                   <template v-slot:lines v-if="question.type == 'open'">
-                    <Open @lines="linesForAnswer($event)"/>
+                    <Open @lines="linesForAnswer($event,question.id)"/>
                   </template>
                 </QuestionCard>
               </transition>
@@ -449,10 +449,23 @@
                 >
                   <option disabled selected value>Select type...</option>
                   <option value="questionsAndAnswers">Questions and answers</option>
-                  <option value="onlyQuestions">Only questions order</option>
+                  <option value="onlyQuestions">Only questions</option>
                   <option value="onlyAnswers">Only answers</option>
-                  <option value="onlyAnswers">No randomize</option>
+                  <option value="noRandomize">No randomize</option>
                 </select>
+              </div>
+            </div>
+            <div class="flex w-full py-4 pr-3 items-center">
+              <div class="w-1/3">
+                <label for="level" class="font-semibold">Number of tests</label>
+              </div>
+              <div class="w-2/3">
+                <input
+                  class="w-full pl-2 pr-2 h-10 rounded border border-gray-700 shadow-xs"
+                  type="number"
+                  name="lines"
+                  v-model="numberOfTests"
+                />
               </div>
             </div>
             <div class="flex w-full py-4 pr-3 items-center">
@@ -554,6 +567,7 @@ export default {
       //Print Test
       answersSheet: '',
       randomize: '',
+      numberOfTests: '',
       reviewPassword: '',
       passwordConfirm: '',
       currentSaved: ''
@@ -624,9 +638,15 @@ export default {
       this.options = value;
       console.log(this.options);
     },
-    linesForAnswer(value) {
-      this.lines = value;
-      console.log(this.lines);
+    linesForAnswer(value,id) {
+      this.$store
+        .dispatch("changeLines",{id,lines_answer: value})
+        .then(response => {
+          console.log(response);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
     newQuestion() {
       this.$store
@@ -635,6 +655,7 @@ export default {
           description: this.description,
           type: this.type,
           level: this.level,
+          lines_answer: this.lines,
           answers: JSON.stringify(this.options)
         })
         .then(response => {
@@ -699,6 +720,7 @@ export default {
         this.errors.question = 'You should add one question at least';
       } else {
         this.loading = true;
+        this.questions[0].lines_answer = this.lines;
         this.$store
         .dispatch("newTest", {
           title: this.title,
@@ -741,9 +763,18 @@ export default {
       this.hidePrintOptions();
       /* if (!this.title && !this.testCourse && !this.signature && !this.date && !this.description) */ 
       this.$store
-        .dispatch("printTest", id)
+        .dispatch("printTest", {
+          id,
+          printOptions: {
+            answersSheet: this.answersSheet,
+            randomize: this.randomize,
+            numberOfTests: this.numberOfTests,
+            reviewPassword: this.reviewPassword
+          }
+        })
         .then(response => {
           this.resetForm();
+          this.cards = [];
           console.log(response);
         })
         .catch(error => {

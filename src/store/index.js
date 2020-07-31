@@ -118,6 +118,7 @@ export default new Vuex.Store({
           type: value.type,
           level: value.level,
           user_id: localStorage.user_id,
+          lines_answer: value.lines_answer,
           answers: value.answers
         })
           .then(response => {
@@ -179,7 +180,7 @@ export default new Vuex.Store({
     },
     printTest(_, value) {
       console.log(value);
-      const URI = `http://localhost:8000/api/tests/print/${value}`;
+      const URI = `http://localhost:8000/api/tests/print?test=${value.id}&answersSheet=${value.printOptions.answersSheet}&randomize=${value.printOptions.randomize}&numberOfTests=${value.printOptions.numberOfTests}&reviewPassword=${value.printOptions.reviewPassword}`;
       return new Promise((resolve, reject) => {
         axios.get(URI, {responseType: 'blob'})
           .then(response => {
@@ -238,6 +239,19 @@ export default new Vuex.Store({
     deleteQuestion(context, value) {
       return new Promise((resolve, reject) => {
         axios.delete(`http://localhost:8000/api/questions/${value.id}`)
+          .then(response => {
+            resolve(response)
+          })
+          .catch(error => {
+            reject(error)
+          })
+      })
+    },
+    changeLines(_, value) {
+      return new Promise((resolve, reject) => {
+        axios.put(`http://localhost:8000/api/questions/changeLines/${value.id}`,{
+          lines_answer: value.lines_answer
+        })
           .then(response => {
             resolve(response)
           })
